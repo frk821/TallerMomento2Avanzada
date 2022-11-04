@@ -2,12 +2,22 @@
 import express from 'express'
 
 import { ControladorHabitacion } from '../Controllers/ControladorHabitacion.js'
-let controladorHabitacion=new ControladorHabitacion() //usando el controlador
+let controladorHabitacion = new ControladorHabitacion() //usando el controlador
+
+import { ControladorReserva } from "../Controllers/ControladorReserva.js"
+let controladorReserva = new ControladorReserva()
 
 export let rutasPersonalizadas=express.Router()
 
-rutasPersonalizadas.get('/hotelesnick/habitaciones',controladorHabitacion.buscarHabitaciones)
-rutasPersonalizadas.get('/hotelesnick/habitacion/:idHabitacion',controladorHabitacion.buscarHabitacionPorId)
-rutasPersonalizadas.post('/hotelesnick/habitacion',controladorHabitacion.registrarHabitacion)
-rutasPersonalizadas.put('/hotelesnick/habitacion/:idHabitacion',controladorHabitacion.editarHabitacion)
+rutasPersonalizadas.get('/hotelLucho/habitaciones',controladorHabitacion.buscarHabitaciones)
+rutasPersonalizadas.get('/hotelLucho/habitacion/:idHabitacion',controladorHabitacion.buscarHabitacionPorId)
+rutasPersonalizadas.post('/hotelLucho/habitacion',controladorHabitacion.registrarHabitacion)
+rutasPersonalizadas.put('/hotelLucho/habitacion/:idHabitacion',controladorHabitacion.editarHabitacion)
+
+
+rutasPersonalizadas.get('/hotelLucho/reservas',controladorReserva.buscarReservas)
+rutasPersonalizadas.get('/hotelLucho/reserva/:idReserva',controladorReserva.buscarReservaPorId)
+rutasPersonalizadas.post('/hotelLucho/reserva',controladorReserva.registrarReserva)
+rutasPersonalizadas.put('/hotelLucho/reserva/:idReserva',controladorReserva.editarReserva)
+rutasPersonalizadas.delete('/hotelLucho/reserva/:idReserva',controladorReserva.eliminarReserva)
 
