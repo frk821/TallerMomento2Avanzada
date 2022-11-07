@@ -12,7 +12,8 @@ export class ControladorHabitacion{
 
             response.status(200).json({
                 "mensaje":"exito en la consulta",
-                "datos":await objetoServicioHabitacion.buscarHabitaciones(),
+                "datos":await objetoServicioHabitacion.buscarHabitaciones()
+                //se llama al metodo buscarHabitaciones de la clase ServicioHabitacion
             })
 
         }catch(error){

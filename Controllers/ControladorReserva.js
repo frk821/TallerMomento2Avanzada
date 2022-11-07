@@ -34,7 +34,7 @@ export class ControladorReserva{
         try{
 
             response.status(200).json({
-                "mensaje":"exito en la consulta "+id,
+                "mensaje":"exito en la consulta "+idReserva,
                 "datos":await objetoServicioReserva.buscarReservaPorId(idReserva),
             })
 
@@ -55,23 +55,23 @@ export class ControladorReserva{
         
         try{
            
-            if(datosHabitacion.numeroMaximoPersonas<8){
+            await objetoServicioReserva.agregarReservaEnBD(datosReserva)
 
-                await objetoServicioReserva.agregarReservaEnBD(datosReserva)
+            response.status(200).json({
+                "mensaje":"exito registrando reserva",
+                "datos":null
+            })
 
-                response.status(200).json({
-                    "mensaje":"exito registrando reserva",
-                    "datos":null
-                })
+                
 
-            }else{
+            
 
-                response.status(400).json({
+               /* response.status(400).json({
                     "mensaje":"no caben tantas babys",
                     "datos":null
-                })
+                }) */
 
-            }
+            
 
             
             
@@ -87,7 +87,7 @@ export class ControladorReserva{
 
     async editarReserva(request,response){
 
-        let id = request.params.idReserva
+        let idReserva = request.params.idReserva
         let datosReserva = request.body
 
         let objetoServicioReserva = new ServicioReserva()
@@ -95,10 +95,10 @@ export class ControladorReserva{
 
         try{
 
-            await objetoServicioReserva.editarHabitacion(id,datosReserva)
+            await objetoServicioReserva.editarHabitacion(idReserva,datosReserva)
 
             response.status(200).json({
-                "mensaje":"exito editando"+id,
+                "mensaje":"exito editando "+idReserva,
                 "datos":null,
             })
 
@@ -116,18 +116,19 @@ export class ControladorReserva{
 
     async eliminarReserva(request,response){
 
-        let id = request.params.idReserva
-        let datosReserva = request.body
+        let idReserva = request.params.idReserva
+        //let idHabitacion 
+        //let datosReserva = request.body
 
         let objetoServicioReserva = new ServicioReserva()
        
 
         try{
 
-            await objetoServicioReserva.eliminarReserva(id,datosReserva)
+            await objetoServicioReserva.eliminarReserva(idReserva)
 
             response.status(200).json({
-                "mensaje":"Se eliminó la reserva con id "+id,
+                "mensaje":"Se eliminó la reserva con id "+idReserva,
                 "datos":null,
             })
 

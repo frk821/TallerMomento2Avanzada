@@ -2,10 +2,10 @@
 import express from 'express'
 
 import { ControladorHabitacion } from '../Controllers/ControladorHabitacion.js'
-let controladorHabitacion = new ControladorHabitacion() //usando el controlador
+let controladorHabitacion = new ControladorHabitacion() //usando el controlador de Habitación
 
 import { ControladorReserva } from "../Controllers/ControladorReserva.js"
-let controladorReserva = new ControladorReserva()
+let controladorReserva = new ControladorReserva() //usando el controlador de Reservas
 
 export let rutasPersonalizadas=express.Router()
 
