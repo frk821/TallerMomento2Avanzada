@@ -53,6 +53,7 @@ export class ControladorHabitacion{
 
         let datosHabitacion=request.body // OBTENGO DATOS DEL BODY
         let objetoServicioHabitacion=new ServicioHabitacion()
+
         
         try{
            
@@ -68,7 +69,7 @@ export class ControladorHabitacion{
             }else{
 
                 response.status(400).json({
-                    "mensaje":"no caben tantas babys",
+                    "mensaje":"Excede el cupo máximo",
                     "datos":null
                 })
 
