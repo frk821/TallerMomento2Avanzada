@@ -1,4 +1,4 @@
-import { modeloHabitacion } from '../Models/ModeloHabitacion.js'
+
 import { ServicioHabitacion } from '../services/ServicioHabitacion.js'
 import {ServicioReserva} from '../services/ServicioReserva.js'
 
@@ -54,15 +54,13 @@ export class ControladorReserva{
 
         let datosReserva = request.body // OBTENGO DATOS DEL BODY DE LA PETICIÓN
         let objetoServicioReserva = new ServicioReserva()
-        let objetoServicioHabitacion = new ServicioHabitacion()
-        
+        let objetoServicioHabitacion = new ServicioHabitacion()        
         
 
         //Variables de la Reserva
-        //let totalPersonas
         let fechaEntrada = new Date(datosReserva.fechaEntrada)
         let fechaSalida = new Date(datosReserva.fechaSalida)
-        //let costoReserva
+        let reservasRegistradas = []
         let diasAlojamiento
         if (Date.parse(fechaEntrada) < Date.parse(fechaSalida)) {
             diasAlojamiento = (Math.abs(fechaSalida.getTime()-fechaEntrada.getTime()))/(1000 * 3600 * 24)
@@ -70,24 +68,101 @@ export class ControladorReserva{
             diasAlojamiento = 0
         }
         
-        
-        console.log("dias de alojamiento son "+diasAlojamiento)
-        //console.log(objetoServicioHabitacion.buscarHabitacionPorId(datosReserva.idHabitacion))
 
         try {
             let datosHabitacion = await objetoServicioHabitacion.buscarHabitacionPorId(datosReserva.idHabitacion)
+            reservasRegistradas = await objetoServicioReserva.buscarReservas()
+            let ultimaReserva = reservasRegistradas.some(function(reserva) {
+                return reserva.idHabitacion == datosReserva.idHabitacion                
+              });
+            
+            if (!ultimaReserva) {
+                if (diasAlojamiento != 0) {
+                
+                    datosReserva.costoReserva = diasAlojamiento * datosHabitacion.valorNoche //aquí se añade la propiedad de costoReserva
+                    if (datosReserva.numeroAdultos != 0) {
+                        let totalPersonas = datosReserva.numeroNinos + datosReserva.numeroAdultos
+                        if (totalPersonas <= datosHabitacion.numeroMaximoPersonas) {
+    
+                            await objetoServicioReserva.agregarReservaEnBD(datosReserva)
+    
+                            response.status(200).json({
+                            "mensaje":"exito registrando la Reserva",
+                            "datos":null
+                            })
+    
+                        } else {
+                            response.status(400).json({
+                                "mensaje":"Excede el cupo máximo de personas en la Habitación",
+                                "datos":null
+                            })
+                        }
+                    } else {
+                        response.status(400).json({
+                            "mensaje":"Debes incluir por lo menos un Adulto",
+                            "datos":null,
+                        })
+                    }
+                } else {
+                    response.status(400).json({
+                        "mensaje":"hay un error en las fechas de Reservación",
+                        "datos":null,
+                    })
+                }
+            } else {
+                response.status(400).json({
+                    "mensaje":"Esta Habitacion ya se encuentra Reservada",
+                    "datos":null,
+                })
+            }
+        } catch (error) {
+            response.status(400).json({
+                "mensaje":"Error!!! La Habitación no existe "+error,
+                "datos":null,
+            })
+        }
+    }
+        
+        
+
+    async editarReserva(request,response){
+
+        let idReserva = request.params.idReserva
+        let datosReserva = request.body
+
+        let objetoServicioReserva = new ServicioReserva()
+
+        let objetoServicioHabitacion = new ServicioHabitacion()        
+        
+
+        //Variables de la Reserva
+        let fechaEntrada = new Date(datosReserva.fechaEntrada)
+        let fechaSalida = new Date(datosReserva.fechaSalida)
+        let reservasRegistradas = []
+        let diasAlojamiento
+        if (Date.parse(fechaEntrada) < Date.parse(fechaSalida)) {
+            diasAlojamiento = (Math.abs(fechaSalida.getTime()-fechaEntrada.getTime()))/(1000 * 3600 * 24)
+        } else {
+            diasAlojamiento = 0
+        }
+        
+
+        try {
+            let datosHabitacion = await objetoServicioHabitacion.buscarHabitacionPorId(datosReserva.idHabitacion)
+            reservasRegistradas = await objetoServicioReserva.buscarReservas()
+            
             if (diasAlojamiento != 0) {
-                //costoReserva = diasAlojamiento * datosHabitacion.valorNoche
+                
                 datosReserva.costoReserva = diasAlojamiento * datosHabitacion.valorNoche //aquí se añade la propiedad de costoReserva
                 if (datosReserva.numeroAdultos != 0) {
                     let totalPersonas = datosReserva.numeroNinos + datosReserva.numeroAdultos
                     if (totalPersonas <= datosHabitacion.numeroMaximoPersonas) {
 
-                        await objetoServicioReserva.agregarReservaEnBD(datosReserva)
+                        await objetoServicioReserva.editarReserva(idReserva,datosReserva)
 
                         response.status(200).json({
-                        "mensaje":"exito registrando la Reserva",
-                        "datos":null
+                            "mensaje":"Éxito Editando la Reserva con ID "+idReserva,
+                            "datos":datosReserva
                         })
 
                     } else {
@@ -108,44 +183,14 @@ export class ControladorReserva{
                     "datos":null,
                 })
             }
+
         } catch (error) {
             response.status(400).json({
-                "mensaje":"Error!!! La Habitación no existe "+error,
+                "mensaje":"Error!!! no fue posible editar la Reserva "+error,
                 "datos":null,
             })
         }
 
-        console.log(datosReserva)
-
-    }
-        
-        
-
-    async editarReserva(request,response){
-
-        let idReserva = request.params.idReserva
-        let datosReserva = request.body
-
-        let objetoServicioReserva = new ServicioReserva()
-       
-
-        try{
-
-            await objetoServicioReserva.editarHabitacion(idReserva,datosReserva)
-
-            response.status(200).json({
-                "mensaje":"exito editando "+idReserva,
-                "datos":null,
-            })
-
-        }catch(error){
-
-            response.status(400).json({
-                "mensaje":"error en la consulta "+error,
-                "datos":null,
-            })
-
-        }
     }
 
 
@@ -153,8 +198,6 @@ export class ControladorReserva{
     async eliminarReserva(request,response){
 
         let idReserva = request.params.idReserva
-        //let idHabitacion 
-        //let datosReserva = request.body
 
         let objetoServicioReserva = new ServicioReserva()
        
@@ -171,7 +214,7 @@ export class ControladorReserva{
         }catch(error){
 
             response.status(400).json({
-                "mensaje":"error en la consulta "+error,
+                "mensaje":"No Existe la Reserva que quieres eliminar "+error,
                 "datos":null,
             })
 
